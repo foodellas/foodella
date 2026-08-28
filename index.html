@@ -16,7 +16,7 @@
 
     <style>
         /* ============================================
-           CSS VARIABLES - LUXURY COLOR PALETTE
+           CSS VARIABLES - LUXURY COLOR PALETT
            ============================================ */
         :root {
             --gold: #C5A059;
@@ -1719,13 +1719,21 @@
                 </div>
                                 <div class="form-group">
                     <label>Payment Method *</label>
-                    <select id="payment-method-select" required style="width:100%; padding:12px; background:var(--black-card); border:1px solid var(--gold-dark); color:var(--white);">
-                        <option value="cod">Cash on Delivery (COD)</option>
-                        <option value="jazzcash">JazzCash</option>
-                        <option value="easypaisa">EasyPaisa</option>
-                        <option value="meezan">Meezan Bank</option>
-                        <option value="hbl">HBL (Habib Bank Limited)</option>
-                    </select>
+                         <!-- Payment Method Selection -->
+                      <div style="margin-top:5px;">
+                <label style="display:flex; align-items:center; gap:12px; padding:12px 15px; border:1px solid #8A6D2B; cursor:pointer; margin-bottom:8px; transition:all 0.3s;" onmouseover="this.style.borderColor='#C5A059'" onmouseout="this.style.borderColor='#8A6D2B'">
+                <input type="radio" name="payment" value="cod" checked style="width:18px; height:18px; accent-color:#C5A059;">
+                <span style="color:#fff; font-size:0.9rem;">💵 Cash on Delivery (COD)</span>
+           </label>
+    
+          <label style="display:flex; align-items:center; gap:12px; padding:12px 15px; border:1px solid #8A6D2B; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.borderColor='#C5A059'" onmouseout="this.style.borderColor='#8A6D2B'">
+        <input type="radio" name="payment" value="ubl" onchange="showUBLModal()" style="width:18px; height:18px; accent-color:#C5A059;">
+        <span style="color:#fff; font-size:0.9rem;">🏦 UBL Bank Transfer</span>
+    </label>
+</div>
+
+         <!-- Hidden input to store payment method -->
+         <input type="hidden" id="selectedPayment" name="payment_method" value="cod">
                 </div>
 
                 <!-- Account Details Note -->
@@ -2011,7 +2019,7 @@
 
             // 3. Send Data to Google Sheets
             // 👇👇👇 PASTE YOUR GOOGLE SCRIPT URL INSIDE THE QUOTES BELOW 👇👇👇
-            const googleScriptUrl = "https://script.google.com/macros/s/AKfycbyoUqQT-Nzla1V7kNXjibxq9uKfJUOuN4oLeK2pS3tVrJ7_LDBNahH85v_Mq4rNbHc/exec"; 
+            const googleScriptUrl = "https://script.google.com/macros/s/AKfycbyZoEZgRJqn-8yv7rWZXajhFOmdl259sZ076snRaGxohqbLSwhldyy8I1WyaUTgbRk/exec"; 
             
             const orderData = {
                 name: name,
@@ -2230,6 +2238,51 @@
 
         });
     </script>
+
+
+           <!-- UBL Payment Modal -->
+<div id="ublModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#111; border:2px solid #C5A059; padding:40px; max-width:420px; width:90%; text-align:center; position:relative;">
+        
+        <button onclick="document.getElementById('ublModal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; color:#C5A059; font-size:2rem; cursor:pointer;">&times;</button>
+        
+        <h3 style="font-family:'Cinzel',serif; color:#C5A059; letter-spacing:3px; margin-bottom:20px;">BANK TRANSFER</h3>
+        
+        <div style="background:#000; border:1px solid #8A6D2B; padding:25px; margin-bottom:25px; text-align:left;">
+            <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Bank Name</p>
+            <p style="color:#fff; font-size:1.1rem; margin-bottom:15px; font-weight:600;">UBL (United Bank Limited)</p>
+            
+            <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Account Title</p>
+            <p style="color:#fff; font-size:1.1rem; margin-bottom:15px; font-weight:600;">Foodella</p>
+            
+            <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Account Number (IBAN)</p>
+            <p style="color:#C5A059; font-size:1rem; font-weight:600; letter-spacing:1px; word-break:break-all;">PK60UNIL0109000395620126</p>
+        </div>
+        
+        <button onclick="copyIBAN()" style="width:100%; padding:12px; margin-bottom:10px; background:transparent; border:2px solid #C5A059; color:#C5A059; font-family:'Montserrat',sans-serif; font-size:0.8rem; font-weight:600; letter-spacing:2px; cursor:pointer;">📋 COPY ACCOUNT NUMBER</button>
+        
+        <button onclick="confirmUBLPayment()" style="width:100%; padding:15px; background:#C5A059; border:2px solid #C5A059; color:#000; font-family:'Montserrat',sans-serif; font-size:0.85rem; font-weight:700; letter-spacing:2px; cursor:pointer;">✓ I HAVE TRANSFERRED PAYMENT</button>
+        
+    </div>
+</div>
+
+<script>
+function copyIBAN() {
+    navigator.clipboard.writeText("PK60UNIL0109000395620126").then(function() {
+        alert("✓ Account Number Copied!");
+    });
+}
+
+function showUBLModal() {
+    document.getElementById('ublModal').style.display = 'flex';
+    document.getElementById('selectedPayment').value = 'ubl';
+}
+
+function confirmUBLPayment() {
+    document.getElementById('ublModal').style.display = 'none';
+    alert("✓ Order submitted! We will verify your payment and contact you.");
+}
+</script>
 
 </body>
 </html>
