@@ -1828,45 +1828,52 @@
                 btn.style.color = 'var(--gold)';
             }, 1500);
         }
-           // ============================================
+           
+             // ============================================
 // LOAD PRODUCTS FROM GOOGLE SHEETS (CLIENT DASHBOARD)
 // ============================================
 const productsApiUrl = "https://script.google.com/macros/s/AKfycbxEKnXUNN1sAWy66NOH31qo2u4ppSaAZYJIvg0RD6mLHHuDu9dPpq6xyVwhaVcWjm33/exec";
 
 function loadProducts() {
     console.log("Loading products...");
-    $.getJSON(productsApiUrl, function(data) {
-        let html = '';
-        data.forEach(function(p) {
-            let badgeHtml = p.badge ? '<span class="product-badge">' + p.badge + '</span>' : '';
-            
-            html += '<div class="product-card reveal" data-category="' + p.category + '">';
-            html += '<div class="product-img">';
-            html += '<img src="' + p.img + '" alt="' + p.name + '">';
-            html += '<div class="product-overlay"></div>';
-            html += badgeHtml;
-            html += '</div>';
-            html += '<div class="product-info">';
-            html += '<p class="product-category">' + (p.category == 'dry-fruits' ? 'Dry Fruits' : 'Masala') + '</p>';
-            html += '<h3 class="product-name">' + p.name + '</h3>';
-            html += '<p class="product-desc">' + p.desc + '</p>';
-            html += '<div class="product-bottom">';
-            html += '<span class="product-price">' + p.price + '</span>';
-            html += '<button class="product-add" onclick="addToCart(\'' + p.name + '\', \'' + p.img + '\', \'' + p.price + '\')"><i class="fas fa-plus"></i></button>';
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
-        });
+    
+    $.ajax({
+        url: productsApiUrl,
+        dataType: 'json',
+        timeout: 10000, // 10 second timeout to prevent infinite loading
+        success: function(data) {
+            let html = '';
+            data.forEach(function(p) {
+                let badgeHtml = p.badge ? '<span class="product-badge">' + p.badge + '</span>' : '';
+                
+                html += '<div class="product-card reveal" data-category="' + p.category + '">';
+                html += '<div class="product-img">';
+                html += '<img src="' + p.img + '" alt="' + p.name + '">';
+                html += '<div class="product-overlay"></div>';
+                html += badgeHtml;
+                html += '</div>';
+                html += '<div class="product-info">';
+                html += '<p class="product-category">' + (p.category == 'dry-fruits' ? 'Dry Fruits' : 'Masala') + '</p>';
+                html += '<h3 class="product-name">' + p.name + '</h3>';
+                html += '<p class="product-desc">' + p.desc + '</p>';
+                html += '<div class="product-bottom">';
+                html += '<span class="product-price">' + p.price + '</span>';
+                html += '<button class="product-add" onclick="addToCart(\'' + p.name + '\', \'' + p.img + '\', \'' + p.price + '\')"><i class="fas fa-plus"></i></button>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+            });
 
-        $('.products-grid').html(html);
-        
-        // Safely trigger scroll animations if available
-        if (typeof revealOnScroll === 'function') {
-            revealOnScroll();
+            $('.products-grid').html(html);
+            
+            if (typeof revealOnScroll === 'function') {
+                revealOnScroll();
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log("Error loading products: " + textStatus + " - " + errorThrown);
+            $('.products-grid').html('<p style="color:red; text-align:center;">Failed to load products. Check console for errors.</p>');
         }
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.log("Error loading products: " + textStatus + " - " + errorThrown);
-        $('.products-grid').html('<p style="color:red; text-align:center;">Failed to load products. Check console for errors.</p>');
     });
 }
                 
