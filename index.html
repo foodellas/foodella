@@ -1863,7 +1863,7 @@
                 $('.products-grid').html(html);
                 
                 // Re-trigger scroll animations for new products
-                revealOnScroll(); 
+                //revealOnScroll(); 
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("Error loading products: " + textStatus + " - " + errorThrown);
                 $('.products-grid').html('<p style="color:red; text-align:center;">Failed to load products. Check console for errors.</p>');
