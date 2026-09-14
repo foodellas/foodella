@@ -1828,8 +1828,7 @@
                 btn.style.color = 'var(--gold)';
             }, 1500);
         }
-           
-             // ============================================
+            // ============================================
 // LOAD PRODUCTS FROM GOOGLE SHEETS (CLIENT DASHBOARD)
 // ============================================
 const productsApiUrl = "https://script.google.com/macros/s/AKfycbxEKnXUNN1sAWy66NOH31qo2u4ppSaAZYJIvg0RD6mLHHuDu9dPpq6xyVwhaVcWjm33/exec";
@@ -1877,15 +1876,7 @@ function loadProducts() {
     });
 }
                 
-                $('.products-grid').html(html);
-                
-                // Re-trigger scroll animations for new products
-                //revealOnScroll(); 
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.log("Error loading products: " + textStatus + " - " + errorThrown);
-                $('.products-grid').html('<p style="color:red; text-align:center;">Failed to load products. Check console for errors.</p>');
-            });
-        }
+               
         
         // Load products when page loads
         loadProducts();
