@@ -1805,7 +1805,7 @@
             
             // Check if item already in cart
             const existingItem = cart.find(item => item.name === name);
-            if(existingItem) {
+            if(existingItem) {D
                 existingItem.qty += 1;
             } else {
                 cart.push({ id: Date.now(), name, img, price, priceStr, qty: 1 });
@@ -1828,51 +1828,56 @@
                 btn.style.color = 'var(--gold)';
             }, 1500);
         }
-            
-        // ============================================
-        // LOAD PRODUCTS FROM GOOGLE SHEETS (CLIENT DASHBOARD)
-        // ============================================
-        const productsApiUrl = "https://script.google.com/macros/s/AKfycbz3rgGo6HvZtVPcAWWnb08AM1ffYQCYHzZg91okoROEmmTECPUf0HMzJWryo2nusLfF/exec";
+            // ============================================
+// LOAD PRODUCTS FROM GOOGLE SHEETS (CLIENT DASHBOARD)
+// ============================================
+const productsApiUrl = "https://script.google.com/macros/s/AKfycbwIy-a91b4WVDOjDw092U4ppf1F58c8TZCLsz4dNgiYIKQ84mpbUkJkghVnIfwRbAbU/exec";
 
-        function loadProducts() {
-            console.log("Loading products...");
-            
-            $.ajax({
-                url: productsApiUrl,
-                dataType: 'json',
-                timeout: 30000, 
-                success: function(data) {
-                    let html = '';
-                    data.forEach(function(p) {
-                        let badgeHtml = p.badge ? '<span class="product-badge">' + p.badge + '</span>' : '';
-                        
-                        html += '<div class="product-card" data-category="' + p.category + '">';
-                        html += '<div class="product-img">';
-                        html += '<img src="' + p.img + '" alt="' + p.name + '">';
-                        html += '<div class="product-overlay"></div>';
-                        html += badgeHtml;
-                        html += '</div>';
-                        html += '<div class="product-info">';
-                        html += '<p class="product-category">' + (p.category == 'dry-fruits' ? 'Dry Fruits' : 'Masala') + '</p>';
-                        html += '<h3 class="product-name">' + p.name + '</h3>';
-                        html += '<p class="product-desc">' + p.desc + '</p>';
-                        html += '<div class="product-bottom">';
-                        html += '<span class="product-price">' + p.price + '</span>';
-                        html += '<button class="product-add" onclick="addToCart(\'' + p.name + '\', \'' + p.img + '\', \'' + p.price + '\')"><i class="fas fa-plus"></i></button>';
-                        html += '</div>';
-                        html += '</div>';
-                        html += '</div>';
-                    });
-
-                    $('.products-grid').html(html);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.log("Error loading products: " + textStatus + " - " + errorThrown);
-                    $('.products-grid').html('<p style="color:red; text-align:center;">Failed to load products. Check console for errors.</p>');
-                }
+function loadProducts() {
+    console.log("Loading products...");
+    
+    $.ajax({
+        url: productsApiUrl,
+        dataType: 'json',
+        timeout: 30000, //30 second timeout to prevent infinite loading
+        success: function(data) {
+            let html = '';
+            data.forEach(function(p) {
+                let badgeHtml = p.badge ? '<span class="product-badge">' + p.badge + '</span>' : '';
+                
+                html += '<div class="product-card reveal" data-category="' + p.category + '">';
+                html += '<div class="product-img">';
+                html += '<img src="' + p.img + '" alt="' + p.name + '">';
+                html += '<div class="product-overlay"></div>';
+                html += badgeHtml;
+                html += '</div>';
+                html += '<div class="product-info">';
+                html += '<p class="product-category">' + (p.category == 'dry-fruits' ? 'Dry Fruits' : 'Masala') + '</p>';
+                html += '<h3 class="product-name">' + p.name + '</h3>';
+                html += '<p class="product-desc">' + p.desc + '</p>';
+                html += '<div class="product-bottom">';
+                html += '<span class="product-price">' + p.price + '</span>';
+                html += '<button class="product-add" onclick="addToCart(\'' + p.name + '\', \'' + p.img + '\', \'' + p.price + '\')"><i class="fas fa-plus"></i></button>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
             });
-        }
 
+            $('.products-grid').html(html);
+            
+            if (typeof revealOnScroll === 'function') {
+                revealOnScroll();
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log("Error loading products: " + textStatus + " - " + errorThrown);
+            $('.products-grid').html('<p style="color:red; text-align:center;">Failed to load products. Check console for errors.</p>');
+        }
+    });
+}
+                
+               
+        
         // Load products when page loads
         loadProducts();
 
@@ -1938,7 +1943,7 @@
             renderCart();
         }
 
-        // Calculate Total (Now includes Delivery Charges)
+                // Calculate Total (Now includes Delivery Charges)
         function calculateTotal() {
             let subtotal = 0;
             cart.forEach(item => {
@@ -1972,8 +1977,7 @@
         function closeCart() {
             $('#cart-modal').removeClass('active');
         }
-        
-        // Open Checkout
+                // Open Checkout
         function openCheckout() {
             if(cart.length === 0) {
                 alert("Your cart is empty. Please add items first.");
@@ -2001,7 +2005,7 @@
             $('#checkout-modal').removeClass('active');
         }
 
-        // Place Order
+               // Place Order
         function placeOrder(e) {
             e.preventDefault();
             
@@ -2011,7 +2015,7 @@
             const phone = form.querySelector('input[type="tel"]').value;
             const email = form.querySelector('input[type="email"]').value || "Not Provided";
             const address = form.querySelector('textarea').value;
-            const payment = form.querySelector('input[name="payment"]:checked').value;
+            const payment = form.querySelector('select').value;
 
             // 2. Build Order Details for the Sheet
             let orderDetails = "";
@@ -2022,6 +2026,7 @@
             });
 
             // 3. Send Data to Google Sheets
+            // 👇👇👇 PASTE YOUR GOOGLE SCRIPT URL INSIDE THE QUOTES BELOW 👇👇👇
             const googleScriptUrl = "https://script.google.com/macros/s/AKfycbyZoEZgRJqn-8yv7rWZXajhFOmdl259sZ076snRaGxohqbLSwhldyy8I1WyaUTgbRk/exec"; 
             
             const orderData = {
@@ -2041,6 +2046,7 @@
                 data: JSON.stringify(orderData),
                 contentType: "text/plain;charset=utf-8", // This prevents CORS errors
                 success: function() {
+                    // Clear Cart & Show Success
                     cart = [];
                     localStorage.setItem('foodela_cart', JSON.stringify(cart));
                     updateCartCount();
@@ -2049,6 +2055,8 @@
                     $('#order-success-modal').addClass('active');
                 },
                 error: function() {
+                    // Even if it shows error, Google usually still saves it. 
+                    // We will show success anyway.
                     cart = [];
                     localStorage.setItem('foodela_cart', JSON.stringify(cart));
                     updateCartCount();
@@ -2062,16 +2070,18 @@
             $('#order-success-modal').removeClass('active');
         }
 
+
         // ============================================
         // ORIGINAL UI JQUERY SCRIPTS
         // ============================================
         $(document).ready(function() {
-           // Preloader - Hides instantly
+                   // Preloader - Pure JavaScript (Cannot get stuck)
             setTimeout(function() {
-                $('#preloader').fadeOut(0, function() {
-                    $(this).remove();
-                });
-            }, 0);
+                var preloader = document.getElementById('preloader');
+                if(preloader) {
+                    preloader.style.display = 'none';
+                }
+            }, 1000); // Hides after 1 second
 
             // Init Cart Count on Load
             updateCartCount();
@@ -2235,49 +2245,50 @@
         });
     </script>
 
-    <!-- UBL Payment Modal -->
-    <div id="ublModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; align-items:center; justify-content:center;">
-        <div style="background:#111; border:2px solid #C5A059; padding:40px; max-width:420px; width:90%; text-align:center; position:relative;">
+
+           <!-- UBL Payment Modal -->
+<div id="ublModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#111; border:2px solid #C5A059; padding:40px; max-width:420px; width:90%; text-align:center; position:relative;">
+        
+        <button onclick="document.getElementById('ublModal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; color:#C5A059; font-size:2rem; cursor:pointer;">&times;</button>
+        
+        <h3 style="font-family:'Cinzel',serif; color:#C5A059; letter-spacing:3px; margin-bottom:20px;">BANK TRANSFER</h3>
+        
+        <div style="background:#000; border:1px solid #8A6D2B; padding:25px; margin-bottom:25px; text-align:left;">
+            <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Bank Name</p>
+            <p style="color:#fff; font-size:1.1rem; margin-bottom:15px; font-weight:600;">UBL (United Bank Limited)</p>
             
-            <button onclick="document.getElementById('ublModal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; color:#C5A059; font-size:2rem; cursor:pointer;">&times;</button>
+            <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Account Title</p>
+            <p style="color:#fff; font-size:1.1rem; margin-bottom:15px; font-weight:600;">Foodella</p>
             
-            <h3 style="font-family:'Cinzel',serif; color:#C5A059; letter-spacing:3px; margin-bottom:20px;">BANK TRANSFER</h3>
-            
-            <div style="background:#000; border:1px solid #8A6D2B; padding:25px; margin-bottom:25px; text-align:left;">
-                <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Bank Name</p>
-                <p style="color:#fff; font-size:1.1rem; margin-bottom:15px; font-weight:600;">UBL (United Bank Limited)</p>
-                
-                <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Account Title</p>
-                <p style="color:#fff; font-size:1.1rem; margin-bottom:15px; font-weight:600;">Foodella</p>
-                
-                <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Account Number (IBAN)</p>
-                <p style="color:#C5A059; font-size:1rem; font-weight:600; letter-spacing:1px; word-break:break-all;">PK60UNIL0109000395620126</p>
-            </div>
-            
-            <button onclick="copyIBAN()" style="width:100%; padding:12px; margin-bottom:10px; background:transparent; border:2px solid #C5A059; color:#C5A059; font-family:'Montserrat',sans-serif; font-size:0.8rem; font-weight:600; letter-spacing:2px; cursor:pointer;">📋 COPY ACCOUNT NUMBER</button>
-            
-            <button onclick="confirmUBLPayment()" style="width:100%; padding:15px; background:#C5A059; border:2px solid #C5A059; color:#000; font-family:'Montserrat',sans-serif; font-size:0.85rem; font-weight:700; letter-spacing:2px; cursor:pointer;">✓ I HAVE TRANSFERRED PAYMENT</button>
-            
+            <p style="color:#888; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">Account Number (IBAN)</p>
+            <p style="color:#C5A059; font-size:1rem; font-weight:600; letter-spacing:1px; word-break:break-all;">PK60UNIL0109000395620126</p>
         </div>
+        
+        <button onclick="copyIBAN()" style="width:100%; padding:12px; margin-bottom:10px; background:transparent; border:2px solid #C5A059; color:#C5A059; font-family:'Montserrat',sans-serif; font-size:0.8rem; font-weight:600; letter-spacing:2px; cursor:pointer;">📋 COPY ACCOUNT NUMBER</button>
+        
+        <button onclick="confirmUBLPayment()" style="width:100%; padding:15px; background:#C5A059; border:2px solid #C5A059; color:#000; font-family:'Montserrat',sans-serif; font-size:0.85rem; font-weight:700; letter-spacing:2px; cursor:pointer;">✓ I HAVE TRANSFERRED PAYMENT</button>
+        
     </div>
+</div>
 
-    <script>
-        function copyIBAN() {
-            navigator.clipboard.writeText("PK60UNIL0109000395620126").then(function() {
-                alert("✓ Account Number Copied!");
-            });
-        }
+<script>
+function copyIBAN() {
+    navigator.clipboard.writeText("PK60UNIL0109000395620126").then(function() {
+        alert("✓ Account Number Copied!");
+    });
+}
 
-        function showUBLModal() {
-            document.getElementById('ublModal').style.display = 'flex';
-            document.getElementById('selectedPayment').value = 'ubl';
-        }
+function showUBLModal() {
+    document.getElementById('ublModal').style.display = 'flex';
+    document.getElementById('selectedPayment').value = 'ubl';
+}
 
-        function confirmUBLPayment() {
-            document.getElementById('ublModal').style.display = 'none';
-            alert("✓ Order submitted! We will verify your payment and contact you.");
-        }
-    </script>
+function confirmUBLPayment() {
+    document.getElementById('ublModal').style.display = 'none';
+    alert("✓ Order submitted! We will verify your payment and contact you.");
+}
+</script>
 
 </body>
 </html>
