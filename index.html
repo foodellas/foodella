@@ -1619,8 +1619,8 @@
                     <img src="https://i.ibb.co/prf5gZhW/Annotation-jpg.png" alt="Annotation jpg" border="0"></a>
                 <p>Handpicked Premium Dry Fruits & Stone-Ground Masale. 100% Authentic Purity from Lahore, Pakistan. Taste of Purity — in every bite, every grain.</p>
                 <div class="footer-social">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/share/19akaCHM1A/?mibextid=wwXIfr" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/foodellaofficial?stkn=MTY3bW5hZzVlOWRmbA%3D%3D&utm_source=qr" target="_blank"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-whatsapp"></i></a>
                     <a href="#"><i class="fab fa-youtube"></i></a>
                 </div>
@@ -1805,7 +1805,7 @@
             
             // Check if item already in cart
             const existingItem = cart.find(item => item.name === name);
-            if(existingItem) {D
+            if(existingItem) {
                 existingItem.qty += 1;
             } else {
                 cart.push({ id: Date.now(), name, img, price, priceStr, qty: 1 });
@@ -2015,7 +2015,7 @@ function loadProducts() {
             const phone = form.querySelector('input[type="tel"]').value;
             const email = form.querySelector('input[type="email"]').value || "Not Provided";
             const address = form.querySelector('textarea').value;
-            const payment = form.querySelector('select').value;
+            const payment = form.querySelector('input[name="payment"]:checked').value;
 
             // 2. Build Order Details for the Sheet
             let orderDetails = "";
