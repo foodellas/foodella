@@ -745,7 +745,99 @@
             background: var(--gold);
             color: var(--black);
         }
+ /* ============================================
+   QUANTITY SELECTOR ON PRODUCT CARD
+   ============================================ */
+.qty-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+}
 
+.qty-selector button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-selector button:hover {
+    background: var(--gold);
+    color: var(--black);
+}
+
+.qty-selector input {
+    width: 50px;
+    height: 34px;
+    text-align: center;
+    background: var(--black-card);
+    border: 1px solid var(--gold-dark);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.qty-selector input::-webkit-outer-spin-button,
+.qty-selector input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.product-bottom {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-cart-full {
+    width: 100%;
+    padding: 12px;
+    background: var(--gold);
+    color: var(--black);
+    border: 1px solid var(--gold);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.add-cart-full:hover {
+    background: transparent;
+    color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(197, 160, 89, 0.2);
+}
+
+.add-cart-full.added {
+    background: #2ecc71 !important;
+    border-color: #2ecc71 !important;
+    color: var(--black) !important;
+}
         /* ============================================
            SPECIAL BANNER
            ============================================ */
@@ -1651,6 +1743,10 @@
             <i class="fas fa-map-marker-alt"></i>
             <span style="color: var(--gray); font-size: 0.9rem;">Lahore, Pakistan</span>
         </li>
+        <li>
+            <i class="fas fa-phone"></i>
+            <span style="color: var(--gray); font-size: 0.9rem;">03055407657</span>
+         </li>
          <li>
             <i class="fas fa-phone"></i>
            <span style="color: var(--gray); font-size: 0.9rem;">042 37371774 (PTCL)</span>
@@ -1799,51 +1895,76 @@
             return "Rs. " + amount.toLocaleString();
         }
 
-        // Add to Cart Function
-        function addToCart(name, img, priceStr) {
+                // Change quantity on the product card (before adding to cart)
+        function changeProdQty(prodId, change) {
+            const input = document.getElementById('qty-' + prodId);
+            if(!input) return;
+            let val = parseInt(input.value) || 1;
+            val += change;
+            if(val < 1) val = 1;
+            if(val > 99) val = 99;
+            input.value = val;
+        }
+
+        // Updated Add to Cart Function
+        function addToCart(name, img, priceStr, prodId, btnRef) {
             const price = parsePrice(priceStr);
+            
+            // Read the quantity from the product card's input
+            let qty = 1;
+            if(prodId) {
+                const input = document.getElementById('qty-' + prodId);
+                if(input) qty = parseInt(input.value) || 1;
+            }
             
             // Check if item already in cart
             const existingItem = cart.find(item => item.name === name);
             if(existingItem) {
-                existingItem.qty += 1;
+                existingItem.qty += qty;
             } else {
-                cart.push({ id: Date.now(), name, img, price, priceStr, qty: 1 });
+                cart.push({ id: Date.now(), name, img, price, priceStr, qty: qty });
             }
             
-                       // Save to LocalStorage
+            // Save to LocalStorage
             localStorage.setItem('foodela_cart', JSON.stringify(cart));
             updateCartCount();
             
-            // Button Animation
-            const btn = event.currentTarget;
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            btn.style.background = 'var(--gold)';
-            btn.style.color = 'var(--black)';
-            
-            setTimeout(() => {
-                btn.innerHTML = originalHtml;
-                btn.style.background = 'transparent';
-                btn.style.color = 'var(--gold)';
-            }, 1500);
-        }
+            // Button Animation (only if button reference was passed)
+            if(btnRef) {
+                const originalHtml = btnRef.innerHTML;
+                btnRef.innerHTML = '<i class="fas fa-check"></i> Added (' + qty + ')';
+                btnRef.classList.add('added');
+                
+                setTimeout(() => {
+                    btnRef.innerHTML = originalHtml;
+                    btnRef.classList.remove('added');
+                }, 1500);
+                
+                // Reset the quantity selector back to 1
+                if(prodId) {
+                    const input = document.getElementById('qty-' + prodId);
+                    if(input) input.value = 1;
+                }
+            }
+        }   
+
             // ============================================
 // LOAD PRODUCTS FROM GOOGLE SHEETS (CLIENT DASHBOARD)
 // ============================================
 const productsApiUrl = "https://script.google.com/macros/s/AKfycbyx3PUpNbRufs_RHdBemUErnhRvQAotQJffR0sZKvd0UBUD5mUaQ7hMCCrMNdz55w/exec";
 
-function loadProducts() {
+     function loadProducts() {
     console.log("Loading products...");
     
     $.ajax({
         url: productsApiUrl,
         dataType: 'json',
-        timeout: 30000, //30 second timeout to prevent infinite loading
+        timeout: 30000,
         success: function(data) {
             let html = '';
-            data.forEach(function(p) {
+            data.forEach(function(p, index) {
                 let badgeHtml = p.badge ? '<span class="product-badge">' + p.badge + '</span>' : '';
+                let prodId = 'prod_' + index;  // unique ID for each product
                 
                 html += '<div class="product-card reveal" data-category="' + p.category + '">';
                 html += '<div class="product-img">';
@@ -1855,12 +1976,28 @@ function loadProducts() {
                 html += '<p class="product-category">' + (p.category == 'dry-fruits' ? 'Dry Fruits' : 'Masala') + '</p>';
                 html += '<h3 class="product-name">' + p.name + '</h3>';
                 html += '<p class="product-desc">' + p.desc + '</p>';
+                
+                // Price Row
                 html += '<div class="product-bottom">';
+                html += '<div class="price-row">';
                 html += '<span class="product-price">' + p.price + '</span>';
-                html += '<button class="product-add" onclick="addToCart(\'' + p.name + '\', \'' + p.img + '\', \'' + p.price + '\')"><i class="fas fa-plus"></i></button>';
                 html += '</div>';
+                
+                // Quantity Selector
+                html += '<div class="qty-selector">';
+                html += '<button type="button" onclick="changeProdQty(\'' + prodId + '\', -1)">−</button>';
+                html += '<input type="number" id="qty-' + prodId + '" value="1" min="1" readonly>';
+                html += '<button type="button" onclick="changeProdQty(\'' + prodId + '\', 1)">+</button>';
                 html += '</div>';
-                html += '</div>';
+                
+                // Full-width Add to Cart Button
+                html += '<button class="add-cart-full" onclick="addToCart(\'' + p.name + '\', \'' + p.img + '\', \'' + p.price + '\', \'' + prodId + '\', this)">';
+                html += '<i class="fas fa-shopping-bag"></i> Add to Cart';
+                html += '</button>';
+                
+                html += '</div>';  // end product-bottom
+                html += '</div>';  // end product-info
+                html += '</div>';  // end product-card
             });
 
             $('.products-grid').html(html);
@@ -1875,7 +2012,6 @@ function loadProducts() {
         }
     });
 }
-                
                
         
         // Load products when page loads
